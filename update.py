@@ -3,16 +3,16 @@ import csi3335sp2022 as cfg
 import pandas as pd
 import numpy as np
 
+##lxml package
 ## losses spelled wrong in series post
 ## data base was missing 2020 home games
 
 ## NAN from data frame replaced with 0
 ## Need to figure out how to get NAN from data frame to null in SQL
-
+#df1 = df.where(pd.notnull(df), None)
 
 ## dont know what to do with this data
-fieldingof =pd.read_csv('/Users/youngjosh/Desktop/baseballdatabank-2022-2.2/core/FieldingOF.csv')
-fieldingof21= fieldingof[fieldingof['yearID']==2021]
+fieldingofsplit=('/Users/youngjosh/Desktop/baseballdatabank-2022-2.2/core/FieldingOFsplit.csv')
 
 
 batting=pd.read_csv('/Users/youngjosh/Desktop/baseballdatabank-2022-2.2/core/Batting.csv')
@@ -29,6 +29,9 @@ batting21=batting21.rename(columns = {'G':'b_G', 'AB':'b_AB','R':'b_R',
 allstarfull=pd.read_csv('/Users/youngjosh/Desktop/baseballdatabank-2022-2.2/core/AllstarFull.csv')
 allstarfull21= allstarfull[allstarfull['yearID']==2021]
 allstarfull21=allstarfull21.fillna(0)
+## messed up allstar
+bailean01=allstarfull[allstarfull['playerID']=='bailean01']
+bailean01=bailean01[bailean01['yearID']==2009]
 
 
 appearances=pd.read_csv('/Users/youngjosh/Desktop/baseballdatabank-2022-2.2/core/Appearances.csv')
@@ -151,16 +154,151 @@ teams21=teams21.rename(columns = {'Rank':'teamRank','G':'team_G','Ghome':'team_G
                                  'HA':'team_HA','HRA':'team_HRA','BBA':'team_BBA','SOA':'team_SOA'})
 
 
-##managers who are not in people:
+##managers who are not in people to people:
 halede99 = people[people['playerID']=='halede99']
 eversbi99= people[people['playerID']=='eversbi99']
 schnejo99=people[people['playerID']=='schnejo99']
 rowsoja99=people[people['playerID']=='rowsoja99']
 jaussda99=people[people['playerID']=='jaussda99']
 
+
+
+## Hall of fame
+
+##2021
+url = "https://www.baseball-reference.com/awards/hof_2021.shtml"
+df_list = pd.read_html(url)
+normal_players = df_list[0]
+len(normal_players.columns)
+cols = list(range(5,34))
+normal_players_2021 = df_list[0]
+len(normal_players.columns)
+cols = list(range(5,34))
+
+normal_players_2021.drop(normal_players_2021.columns[cols],axis=1,inplace=True)
+normal_players_2021.columns = normal_players_2021.columns.droplevel(0)
+
+normal_players_2021=normal_players_2021.drop(columns=['Rk','YoB','H','HR','BB','SO','%vote'])
+normal_players_2021.drop(normal_players_2021.columns[2], axis=1,inplace=True)
+
+yearID = [2021 for i in range(25)]
+normal_players_2021['YearID']=yearID
+
+needed =[301 for i in range(25)]
+normal_players_2021['needed']=needed
+
+ballots =[401 for i in range(25)]
+normal_players_2021['ballots']=ballots
+
+votedBy =['BBWAA' for i in range(25)]
+normal_players_2021['votedBy']=votedBy
+
+inducted=['N' for i in range(25)]
+normal_players_2021['inducted']=inducted
+
+category=['Player' for i in range(25)]
+normal_players_2021['category']=category
+
+normal_players_2021['Name']=normal_players_2021['Name'].str.replace("X-","")
+
+normal_players_2021[['nameFirst', 'nameLast']] = normal_players_2021['Name'].str.split(' ', expand=True)
+
+normal_players_2021.at[24,'nameFirst']='A. J.'
+
+
+##2020
+url = 'https://www.baseball-reference.com/awards/hof_2020.shtml#all_hof_Veterans'
+df_list = pd.read_html(url)
+hof20 = df_list[0]
+hof20.columns = hof20.columns.droplevel(0)
+cols = list(range(5,39))
+hof20.drop(hof20.columns[cols],axis=1,inplace=True)
+hof20=hof20.drop(columns=['Rk','YoB','%vote'])
+
+yearID = [2020 for i in range(32)]
+hof20['YearID']=yearID
+
+needed =[298 for i in range(32)]
+hof20['needed']=needed
+
+ballots =[397 for i in range(32)]
+hof20['ballots']=ballots
+
+votedBy =['BBWAA' for i in range(32)]
+hof20['votedBy']=votedBy
+
+inducted=['N' for i in range(32)]
+hof20['inducted']=inducted
+
+category=['Player' for i in range(32)]
+hof20['category']=category
+
+hof20['Name']=hof20['Name'].str.replace("X-","")
+
+hof20.at[0,'inducted']='Y'
+hof20.at[1,'inducted']='Y'
+
+
+
+hof20.loc[hof20.shape[0]] = ['Marvin Miller', None, 2020,None,None,'Veterans','Y','Pioneer/Executive']
+hof20.loc[hof20.shape[0]] = ['Ted Simmons', None, 2020,None,None,'Veterans','Y','Player']
+
+hof20[['nameFirst', 'nameLast']] = hof20['Name'].str.split(' ', expand=True)
+
+hof20.at[21,'nameFirst']='J. J.'
+
+##2019
+url = "https://www.baseball-reference.com/awards/hof_2019.shtml#all_hof_Veterans"
+df_list = pd.read_html(url)
+
+hof19 = df_list[0]
+len(normal_players.columns)
+cols = list(range(5,34))
+
+hof19.columns = hof19.columns.droplevel(0)
+hof19.drop(hof19.columns[cols],axis=1,inplace=True)
+hof19=hof19.drop(columns=['Rk','YoB','%vote','SO'])
+hof19.drop(hof19.columns[2], axis=1,inplace=True)
+
+yearID = [2019 for i in range(35)]
+hof19['YearID']=yearID
+
+needed =[319 for i in range(35)]
+hof19['needed']=needed
+
+ballots =[425 for i in range(35)]
+hof19['ballots']=ballots
+
+votedBy =['BBWAA' for i in range(35)]
+hof19['votedBy']=votedBy
+
+inducted=['N' for i in range(35)]
+hof19['inducted']=inducted
+
+category=['Player' for i in range(35)]
+hof19['category']=category
+
+hof19['Name']=hof19['Name'].str.replace("X-","")
+
+hof19.at[0,'inducted']='Y'
+hof19.at[1,'inducted']='Y'
+hof19.at[2,'inducted']='Y'
+hof19.at[3,'inducted']='Y'
+
+hof19.loc[hof19.shape[0]] = ['Harold Baines', None, 2019,None,None,'Veterans','Y','Player']
+hof19.loc[hof19.shape[0]] = ['Lee Smith', None, 2019,None,None,'Veterans','Y','Player']
+
+hof19[['nameFirst', 'nameLast']] = hof19['Name'].str.split(' ', expand=True)
+
+hof19.at[7,'nameLast']='Walker'
+
+
 con=pymysql.connect(host=cfg.mysql['location'],user=cfg.mysql['user'],password=cfg.mysql['password'],db=cfg.mysql['database'])
 with con:
     cur = con.cursor()
+    sql='UPDATE allstarfull SET yearID =%s, gameNum=%s, gameID=%s WHERE yearID=0'
+    cur.execute(sql,(bailean01.iloc[0, 1],bailean01.iloc[0, 2],bailean01.iloc[0, 3]))
+
     cols = "`,`".join([str(i) for i in allstarfull21.columns.tolist()])
     for i, row in allstarfull21.iterrows():
         sql = "INSERT INTO `allstarfull` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
@@ -258,8 +396,73 @@ with con:
         cur.execute(sql, tuple(row))
 
     for i in range(len(d21)):
-            sql="UPDATE people SET deathYear = %s, deathMonth = %s, deathDay=%s, deathCountry=%s, deathState=%s, deathCity=%s WHERE playerid =%s"
-            cur.execute(sql,(d21.iloc[i, 1],d21.iloc[i, 2],d21.iloc[i, 3],d21.iloc[i, 4],d21.iloc[i, 5],d21.iloc[i, 6],d21.iloc[i, 0]))
+        sql="UPDATE people SET deathYear = %s, deathMonth = %s, deathDay=%s, deathCountry=%s, deathState=%s, deathCity=%s WHERE playerid =%s"
+        cur.execute(sql,(d21.iloc[i, 1],d21.iloc[i, 2],d21.iloc[i, 3],d21.iloc[i, 4],d21.iloc[i, 5],d21.iloc[i, 6],d21.iloc[i, 0]))
+
+    #for i in range(len(appearances)):
+        #sql="UPDATE appearances SET G_rf =%s WHERE playerid=%s"
+        #cur.execute(sql,(appearances.iloc[i,16],appearances.iloc[i,3]))
+
+    hof21ids=[]
+    hof20ids=[]
+    hof19ids=[]
+
+    for i in range(len(normal_players_2021)):
+        sql = 'SELECT playerid FROM people WHERE nameFirst=%s AND nameLast=%s;'
+        cur.execute(sql,(normal_players_2021.iloc[i,8],normal_players_2021.iloc[i,9]))
+        results=cur.fetchall()
+        for row in results:
+            for col in row:
+                hof21ids.append(col)
+
+    normal_players_2021['playerID']=hof21ids
+
+    for i in range(len(hof20)):
+        sql = 'SELECT playerid FROM people WHERE nameFirst=%s AND nameLast=%s;'
+        cur.execute(sql, (hof20.iloc[i, 8], hof20.iloc[i, 9]))
+        results=cur.fetchall()
+        for row in results:
+            for col in row:
+                hof20ids.append(col)
+    hof20['playerID']=hof20ids
+
+    for i in range(len(hof19)):
+        sql = 'SELECT playerid FROM people WHERE nameFirst=%s AND nameLast=%s;'
+        cur.execute(sql, (hof19.iloc[i, 8], hof19.iloc[i, 9]))
+        results=cur.fetchall()
+        for row in results:
+            for col in row:
+                hof19ids.append(col)
+    hof19ids.remove('garcifr01')
+    hof19['playerID']=hof19ids
+
+    hof19 = hof19.drop(columns=['Name','nameFirst','nameLast'])
+    cols = "`,`".join([str(i) for i in hof19.columns.tolist()])
+    for i, row in hof19.iterrows():
+        sql = "INSERT INTO `halloffame` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
+        cur.execute(sql, tuple(row))
+
+    hof20 = hof20.drop(columns=['Name', 'nameFirst', 'nameLast'])
+    cols = "`,`".join([str(i) for i in hof20.columns.tolist()])
+    for i, row in hof20.iterrows():
+        sql = "INSERT INTO `halloffame` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
+        cur.execute(sql, tuple(row))
+
+    normal_players_2021 = normal_players_2021.drop(columns=['Name', 'nameFirst', 'nameLast'])
+    cols = "`,`".join([str(i) for i in normal_players_2021.columns.tolist()])
+    for i, row in normal_players_2021.iterrows():
+        sql = "INSERT INTO `halloffame` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
+        cur.execute(sql, tuple(row))
+
+
+
+
+
+
+
+
+
+
 
 
 
