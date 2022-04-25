@@ -11,8 +11,8 @@ import numpy as np
 ## Need to figure out how to get NAN from data frame to null in SQL
 #df1 = df.where(pd.notnull(df), None)
 
-## dont know what to do with this data
-fieldingofsplit=('/Users/youngjosh/Desktop/baseballdatabank-2022-2.2/core/FieldingOFsplit.csv')
+
+
 
 
 batting=pd.read_csv('/Users/youngjosh/Desktop/baseballdatabank-2022-2.2/core/Batting.csv')
@@ -75,6 +75,11 @@ fieldingpost21=fieldingpost21.rename(columns = {'POS':'position', 'G':'f_G','GS'
                             'E':'f_E','DP':'f_DP','PB':'f_PB',
                             'WP':'f_WP','SB':'f_SB','CS':'f_CS',
                             'ZR':'f_ZR'})
+
+
+fieldingofsplit=pd.read_csv('/Users/youngjosh/Desktop/baseballdatabank-2022-2.2/core/FieldingOFsplit.csv')
+## all values null: drop
+fieldingofsplit=fieldingofsplit.drop(columns=['PB','WP','SB','CS','ZR'])
 
 
 #data base missing 2020 homegames as well
@@ -154,7 +159,7 @@ teams21=teams21.rename(columns = {'Rank':'teamRank','G':'team_G','Ghome':'team_G
                                  'HA':'team_HA','HRA':'team_HRA','BBA':'team_BBA','SOA':'team_SOA'})
 
 
-##managers who are not in people to people:
+##managers who are not in people:
 halede99 = people[people['playerID']=='halede99']
 eversbi99= people[people['playerID']=='eversbi99']
 schnejo99=people[people['playerID']=='schnejo99']
@@ -308,6 +313,12 @@ with con:
     sql = "ALTER TABLE appearances ADD G_rf VARCHAR(100)  AFTER G_cf"
     cur.execute(sql)
 
+    sql='CREATE TABLE if not exists fieldingofsplit (ID int NOT NULL AUTO_INCREMENT,' \
+        'playerID varchar(255) NOT NULL, yearID int NOT NULL, stint int NOT NULL, teamID varchar(255) NOT NULL,' \
+        'lgID varchar (255) NOT NULL, POS varchar (255), G int, GS int, Innouts int,' \
+        'PO int, A int, E int, DP int, PRIMARY KEY (ID))'
+    cur.execute(sql)
+
     cols = "`,`".join([str(i) for i in halede99.columns.tolist()])
     for i, row in halede99.iterrows():
         sql = "INSERT INTO `people` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
@@ -449,24 +460,16 @@ with con:
         cur.execute(sql, tuple(row))
 
     normal_players_2021 = normal_players_2021.drop(columns=['Name', 'nameFirst', 'nameLast'])
+
     cols = "`,`".join([str(i) for i in normal_players_2021.columns.tolist()])
     for i, row in normal_players_2021.iterrows():
         sql = "INSERT INTO `halloffame` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
         cur.execute(sql, tuple(row))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    cols = "`,`".join([str(i) for i in fieldingofsplit.columns.tolist()])
+    for i, row in fieldingofsplit.iterrows():
+        sql = "INSERT INTO `fieldingofsplit` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
+        cur.execute(sql, tuple(row))
 
 
 
