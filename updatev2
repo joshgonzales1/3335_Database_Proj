@@ -7,9 +7,7 @@ import numpy as np
 ## losses spelled wrong in series post
 ## data base was missing 2020 home games
 
-## NAN from data frame replaced with 0
-## Need to figure out how to get NAN from data frame to null in SQL
-#df1 = df.where(pd.notnull(df), None)
+
 
 
 
@@ -28,7 +26,8 @@ batting21=batting21.rename(columns = {'G':'b_G', 'AB':'b_AB','R':'b_R',
 
 allstarfull=pd.read_csv('baseballdatabank-2022-2.2/core/AllstarFull.csv')
 allstarfull21= allstarfull[allstarfull['yearID']==2021]
-allstarfull21=allstarfull21.fillna(0)
+## distinct number to use for NAN value
+allstarfull21=allstarfull21.fillna(12345)
 ## messed up allstar
 bailean01=allstarfull[allstarfull['playerID']=='bailean01']
 bailean01=bailean01[bailean01['yearID']==2009]
@@ -53,7 +52,8 @@ battingpost21=battingpost21.rename(columns = {'G':'b_G', 'AB':'b_AB','R':'b_R',
 
 fielding=pd.read_csv('baseballdatabank-2022-2.2/core/Fielding.csv')
 fielding21= fielding[fielding['yearID']==2021]
-fielding21=fielding21.fillna(0)
+## distinct number for NAN values
+fielding21=fielding21.fillna(12345)
 fielding21=fielding21.drop(columns=['lgID'])
 fielding21=fielding21.rename(columns = {'POS':'position', 'G':'f_G','GS':'f_GS',
                             'InnOuts':'f_InnOuts', 'PO':'f_PO', 'A':'f_A',
@@ -67,7 +67,8 @@ fielding21=fielding21.rename(columns = {'POS':'position', 'G':'f_G','GS':'f_GS',
 
 fieldingpost =pd.read_csv('baseballdatabank-2022-2.2/core/FieldingPost.csv')
 fieldingpost21= fieldingpost[fieldingpost['yearID']==2021]
-fieldingpost21=fieldingpost21.fillna(0)
+##distinct number for NAN values
+fieldingpost21=fieldingpost21.fillna(12345)
 fieldingpost21=fieldingpost21.drop(columns=['lgID'])
 fieldingpost21=fieldingpost21.drop(columns=['TP'])
 fieldingpost21=fieldingpost21.rename(columns = {'POS':'position', 'G':'f_G','GS':'f_GS',
@@ -117,7 +118,8 @@ d21=d21.drop(columns=['birthYear','birthMonth','birthDay','birthCountry'
 
 pitching =pd.read_csv('baseballdatabank-2022-2.2/core/Pitching.csv')
 pitching21= pitching[pitching['yearID']==2021]
-pitching21=pitching21.fillna(0)
+##distinct value for NAN
+pitching21=pitching21.fillna(12345)
 pitching21=pitching21.drop(columns=['lgID'])
 pitching21=pitching21.rename(columns = {'W':'p_W','L':'p_L','G':'p_G', 'GS':'p_GS','CG':'p_CG',
                             'SHO':'p_SHO', 'SV':'p_SV', 'IPouts':'p_IPOuts',
@@ -139,7 +141,8 @@ pitchingpost21=pitchingpost21.rename(columns = {'W':'p_W','L':'p_L','G':'p_G', '
                             'SF':'p_SF','GIDP':'p_GIDP'})
 
 pitchingpost21 = pitchingpost21.replace([np.inf, -np.inf], np.nan)
-pitchingpost21=pitchingpost21.fillna(0)
+##Distinct Value for NAN
+pitchingpost21=pitchingpost21.fillna(12345)
 
 seriespost =pd.read_csv('baseballdatabank-2022-2.2/core/SeriesPost.csv')
 seriespost21= seriespost[seriespost['yearID']==2021]
@@ -470,6 +473,46 @@ with con:
     for i, row in fieldingofsplit.iterrows():
         sql = "INSERT INTO `fieldingofsplit` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
         cur.execute(sql, tuple(row))
+
+
+    ## change all original NAN values to null
+    sql ='Update allstarfull set startingPos = NULL where startingPos=12345'
+    cur.execute(sql)
+
+    sql = 'Update fielding set f_PB = NULL where f_PB=12345'
+    cur.execute(sql)
+
+    sql = 'Update fielding set f_WP = NULL where f_WP=12345'
+    cur.execute(sql)
+
+    sql = 'Update fielding set f_SB = NULL where f_SB=12345'
+    cur.execute(sql)
+
+    sql = 'Update fielding set f_CS = NULL where f_CS=12345'
+    cur.execute(sql)
+
+    sql = 'Update fielding set f_ZR = NULL where f_ZR=12345'
+    cur.execute(sql)
+
+    sql = 'Update fieldingpost set f_PB = NULL where f_PB=12345'
+    cur.execute(sql)
+
+    sql = 'Update fieldingpost set f_SB = NULL where f_SB=12345'
+    cur.execute(sql)
+
+    sql = 'Update fieldingpost set f_CS = NULL where f_CS=12345'
+    cur.execute(sql)
+
+    sql = 'Update pitching set p_ERA = NULL where p_ERA=12345'
+    cur.execute(sql)
+
+    sql = 'Update pitchingpost set p_ERA = NULL where p_ERA=12345'
+    cur.execute(sql)
+
+    sql='CREATE Index idxname ON batting(playerid)'
+    cur.execute(sql)
+
+
 
 
 
