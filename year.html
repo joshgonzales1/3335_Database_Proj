@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block title %}Year Select{% endblock %} {% block content
+%}
+
+
+<form action="players" method="POST" >
+<div class="form-group">
+<p style="font-family:verdana">
+Select year:<SELECT name="year" style="font-family:verdana">
+{% for j in results %}
+	<OPTION value={{j[0]}}>{{j[0]}}</OPTION>
+{% endfor %}
+</SELECT>
+</p>
+</div>
+    <br />
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+{% endblock %}
